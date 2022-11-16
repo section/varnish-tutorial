@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: varnish-cache
+  labels:
+    app: varnish-cache
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: varnish-cache
+  template:
+    metadata:
+      labels:
+        app: varnish-cache
+    spec:
+      containers:
+      - name: varnishd
+        image: sectionio/varnish-cache-kei:alpha
+        imagePullPolicy: Always
+        args:
+        - -p
+        - http_resp_hdr_len=131072
+        - -p
+        - http_resp_size=131072
+        - -p
+        - syslog_cli_traffic=off
+        - -p
+        - workspace_backend=229376
+        - -p
+        - workspace_client=131072
+        env:
+        - name: NATS_URL
+          value: nats://section-nats:4222
+        - name: NATS_SUBJECT
+          value: varnish
+        - name: VARNISHNCSA_ARGS
+          value: "-E"
+        - name: VARNISH_SIZE
+          value: "100M"
+        resources: # Update resource values accordingly after monitoring
+          requests:
+            cpu: ".1"
+            memory: ".1Gi"
+          limits:
+            cpu: ".1"
+            memory: ".1Gi"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: vcl
+          mountPath: /etc/varnish/
+          readOnly: true
+      volumes:
+      - name: vcl
+        configMap:
+          name: vcl
+
+---
+# The presence of this configmap will provision additional (hidden) resources to allow cache bans
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: section-nats

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: section/escape-room # Replace image if desired
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: ".1"
+            memory: ".1Gi"
+          limits:
+            cpu: ".1"
+            memory: ".1Gi"
+        ports:
+        - containerPort: 3000

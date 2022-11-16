@@ -1,0 +1,3 @@
+resources:
+- webapp-deployment.yaml
+- webapp-service.yaml

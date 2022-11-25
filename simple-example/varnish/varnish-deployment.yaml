@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: varnishd
-        image: sectionio/varnish-cache-kei:alpha
+        image: sectionio/varnish-cache-kei:1.0.1
         imagePullPolicy: Always
         args:
         - -p
@@ -51,6 +51,22 @@ spec:
         - name: vcl
           mountPath: /etc/varnish/
           readOnly: true
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
       volumes:
       - name: vcl
         configMap:
